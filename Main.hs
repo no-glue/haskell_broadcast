@@ -6,8 +6,8 @@ import qualified Network.WebSockets as WS
 connections :: [WS.Connection]
 connections = []
 
-addConnection :: WS.Connection -> [WS.Connection] -> [WS.Connection]
-addConnection conn conns = conn : conns
+addConnection :: WS.Connection -> [WS.Connection]
+addConnection conn = conn : connections
 
 meow :: [WS.Connection] -> IO ()
 meow conn = forever $ do
@@ -17,7 +17,7 @@ meow conn = forever $ do
 serverApp :: WS.PendingConnection -> IO ()
 serverApp pendingConn = do
     conn <- WS.acceptRequest pendingConn
-    meow (addConnection conn connections)
+    meow (addConnection conn)
 
 main :: IO ()
 main = WS.runServer "127.0.0.1" 8080 serverApp
