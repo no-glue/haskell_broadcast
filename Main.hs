@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 import           Control.Monad      (forM_, forever)
+import Control.Monad.IO.Class (liftIO)
 import Control.Concurrent
 import Data.Text (Text)
 import qualified Data.Text          as T
@@ -30,9 +31,11 @@ meow conn = forever $ do
 serverApp :: MVar ServerState -> WS.ServerApp
 serverApp state pendingConn = do
     conn <- WS.acceptRequest pendingConn
+    clients <- liftIO $ readMVar state
     meow conn
 
 main :: IO ()
 main = do
   state <- newMVar newServerState
   WS.runServer "127.0.0.1" 8080 $ serverApp state
+  -- current $ pendingConn
