@@ -33,4 +33,6 @@ serverApp pendingConn = do
     meow conn
 
 main :: IO ()
-main = WS.runServer "127.0.0.1" 8080 serverApp
+main = do
+  state <- newMVar newServerState
+  WS.runServer "127.0.0.1" 8080 serverApp
