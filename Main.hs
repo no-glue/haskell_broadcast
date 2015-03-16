@@ -31,7 +31,12 @@ meow conn = forever $ do
 serverApp :: MVar ServerState -> WS.ServerApp
 serverApp state pendingConn = do
     conn <- WS.acceptRequest pendingConn
-    clients <- liftIO $ readMVar state
+    let client = ("", conn)
+    liftIO $ modifyMVar_ state $ \s -> do 
+      let s1 = addClient client s
+      -- s is state; first parameter to modifyMVar_
+      -- s1 is new state
+      return s1
     meow conn
 
 main :: IO ()
