@@ -1,8 +1,26 @@
 {-# LANGUAGE OverloadedStrings #-}
-import           Control.Monad      (forever)
+import           Control.Monad      (forM_, forever)
 import Control.Concurrent
+import Data.Text (Text)
 import qualified Data.Text          as T
+import qualified Data.Text.IO as T
 import qualified Network.WebSockets as WS
+
+type Client = (Text, WS.Connection)
+
+type ServerState = [Client]
+
+newServerState :: ServerState
+newServerState = []
+
+addClient :: Client -> ServerState -> ServerState
+addClient client clients = client : clients
+
+broadcast :: Text -> ServerState -> IO ()
+broadcast message clients = do
+  T.putStrLn message
+  forM_ clients $ \(_, connection) -> WS.sendTextData connection message
+  -- loop through clients, $ - current client
 
 meow :: WS.Connection -> IO ()
 meow conn = forever $ do
