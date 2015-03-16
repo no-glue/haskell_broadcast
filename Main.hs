@@ -27,12 +27,12 @@ meow conn = forever $ do
     msg <- WS.receiveData conn
     WS.sendTextData conn $ msg `T.append` ", meow"
 
-serverApp :: WS.PendingConnection -> IO ()
-serverApp pendingConn = do
+serverApp :: MVar ServerState -> WS.ServerApp
+serverApp state pendingConn = do
     conn <- WS.acceptRequest pendingConn
     meow conn
 
 main :: IO ()
 main = do
   state <- newMVar newServerState
-  WS.runServer "127.0.0.1" 8080 serverApp
+  WS.runServer "127.0.0.1" 8080 $ serverApp state
