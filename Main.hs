@@ -23,10 +23,11 @@ broadcast message clients = do
   forM_ clients $ \(_, connection) -> WS.sendTextData connection message
   -- loop through clients, $ - current client
 
-meow :: WS.Connection -> IO ()
-meow conn = forever $ do
+talk :: WS.Connection -> MVar ServerState -> Client -> IO ()
+talk conn state client = forever $ do
     msg <- WS.receiveData conn
-    WS.sendTextData conn $ msg `T.append` ", meow"
+    liftIO $ readMVar state >>= broadcast
+      (msg)
 
 serverApp :: MVar ServerState -> WS.ServerApp
 serverApp state pendingConn = do
@@ -37,7 +38,7 @@ serverApp state pendingConn = do
       -- s is state; first parameter to modifyMVar_
       -- s1 is new state
       return s1
-    meow conn
+    talk conn state client
 
 main :: IO ()
 main = do
